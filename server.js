@@ -7,16 +7,23 @@ import error from "./src/utils/error.js";
 import connectDB from "./src/configs/db.js";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from "swagger-jsdoc";
+import cors from "cors"
 import { redis } from "./src/configs/redis.js";
+
+
 
 //Redis connection
 redis.on("connect", () => {
   console.log("Redis connected!!");
 });
 
+
+
+
 dotenv.config();
 const app = express();
 const PORT = 8000 || process.env.PORT;
+
 
 
 const swaggerOptions = {
@@ -57,8 +64,11 @@ app.use("/api/v1/task", taskRoutes);
 app.get('/', (req, res) => {
   res.send("Welcome to the Task Management System Apis.");
 });
+
+
 // Global Error Handler
 app.use(error);
+
 
 // Start Server
 app.listen(PORT, () => {

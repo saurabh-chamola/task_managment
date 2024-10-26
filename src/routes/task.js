@@ -1,16 +1,32 @@
-
 import express from "express";
-import { deleteTask, getMyTasks, getTaskDetails, getTasksAnalytics, newTask, taskAssignment, updateTask } from "../controllers/task.js";
+import cors from "cors";
+import {
+    deleteTask,
+    getMyTasks,
+    getTaskDetails,
+    getTasksAnalytics,
+    newTask,
+    taskAssignment,
+    updateTask
+} from "../controllers/task.js";
 import { verifyTokenMiddleware } from "../middlewares/verifyToken.js";
 import { checkRole } from "../middlewares/checkRole.js";
 
-const router = express.Router();
+
+const router = express.Router()
+
+/**
+ * @swagger
+ * servers:
+ *   - url: https://task-managment-fa53.onrender.com
+ *     description: Render production server
+ */
 
 /**
  * @swagger
  * tags:
  *   - name: Task Management APIs
- *     description: APIs for task creation, assignment, getting , update, and deletion.
+ *     description: APIs for task creation, assignment, retrieval, update, and deletion.
  */
 
 /**
@@ -22,7 +38,7 @@ const router = express.Router();
  *       properties:
  *         _id:
  *           type: string
- *           description: primary key.
+ *           description: Primary key.
  *         title:
  *           type: string
  *           description: Task title with a minimum of 5 characters.
@@ -30,7 +46,7 @@ const router = express.Router();
  *         description:
  *           type: string
  *           description: Detailed description of the task with a minimum of 10 characters.
- *           example: "task description"
+ *           example: "Task description"
  *         dueDate:
  *           type: string
  *           format: date-time
@@ -78,7 +94,7 @@ const router = express.Router();
  *       - in: query
  *         name: title
  *         schema:
- *           type: string
+           type: string
  *         required: false
  *         description: Search tasks by title (case-insensitive).
  *     responses:
@@ -93,16 +109,15 @@ const router = express.Router();
  */
 router.route("/").get(verifyTokenMiddleware, checkRole("Admin", "Manager"), getTaskDetails);
 
-
 /**
  * @swagger
- * /api/v1/task/taskAssignment/{id}:
+ * /api/v1/task/taskAssignment/{taskId}:
  *   put:
  *     tags: [Task Management APIs]
  *     summary: Assign Task
- *     description: Assign a task to a user. Admins can assign tasks to anyone, while Managers can only assign tasks to users on their team. If a task is already completed, it cannot be reassigned. The user ID must be passed in the request body, and the task ID in the path parameters.we need to pass id of the user in request body to whom you want to to assign the task and also need to pass the task id that you need to assign to user in request parameter.
+ *     description: Assign a task to a user. Admins can assign tasks to anyone, while Managers can only assign tasks to users on their team. If a task is already completed, it cannot be reassigned.
  *     parameters:
- *       - name: id
+ *       - name: taskId
  *         in: path
  *         required: true
  *         description: The ID of the task to assign.
@@ -136,7 +151,7 @@ router.route("/taskAssignment/:taskId").put(verifyTokenMiddleware, checkRole("Ad
  *   get:
  *     tags: [Task Management APIs]
  *     summary: Get My Tasks
- *     description: getting all tasks assigned to the logged in user, with  filtering by `status` ( "Pending" or "Completed") and searching by "title".
+ *     description: Retrieve all tasks assigned to the logged-in user, with filtering by `status` ("Pending" or "Completed") and searching by "title".
  *     parameters:
  *       - in: query
  *         name: status
@@ -149,7 +164,7 @@ router.route("/taskAssignment/:taskId").put(verifyTokenMiddleware, checkRole("Ad
  *         schema:
  *           type: string
  *         required: false
- *         description: Search tasks by title (case_insensitive).
+ *         description: Search tasks by title (case-insensitive).
  *     responses:
  *       200:
  *         description: User's tasks retrieved successfully.
@@ -162,14 +177,13 @@ router.route("/taskAssignment/:taskId").put(verifyTokenMiddleware, checkRole("Ad
  */
 router.route("/getMyTasks").get(verifyTokenMiddleware, getMyTasks);
 
-
 /**
  * @swagger
  * /api/v1/task/{id}:
  *   put:
  *     tags: [Task Management APIs]
  *     summary: Update Task
- *     description: Users can only update the status of a task (e.g., from Pending to Completed). Admins and Managers can modify any field. Task assigned Notifications will be sent to the user who completed the task and to Admin/Manger who assigned the task to user.
+ *     description: Users can only update the status of a task (e.g., from Pending to Completed). Admins and Managers can modify any field.
  *     parameters:
  *       - name: id
  *         in: path
@@ -186,10 +200,6 @@ router.route("/getMyTasks").get(verifyTokenMiddleware, getMyTasks);
  *     responses:
  *       200:
  *         description: Task updated successfully.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Task'
  *       404:
  *         description: Task not found.
  */
@@ -217,14 +227,13 @@ router.route("/:id").put(verifyTokenMiddleware, updateTask);
  */
 router.route("/:id").delete(verifyTokenMiddleware, checkRole("Admin", "Manager"), deleteTask);
 
-
 /**
  * @swagger
  * /api/v1/task/analytics:
  *   get:
  *     tags: [Task Management APIs]
  *     summary: Get Task Analytics
- *     description: Retrieve task analytics including counts of completed, pending, and overdue tasks. This endpoint provides a summary of task statuses for better management and monitoring.
+ *     description: Retrieve task analytics including counts of completed, pending, and overdue tasks.
  *     responses:
  *       200:
  *         description: Task analytics retrieved successfully.
@@ -251,6 +260,5 @@ router.route("/:id").delete(verifyTokenMiddleware, checkRole("Admin", "Manager")
  *                   example: 10
  */
 router.route("/analytics").get(verifyTokenMiddleware, checkRole("Admin", "Manager"), getTasksAnalytics);
-
 
 export default router;
