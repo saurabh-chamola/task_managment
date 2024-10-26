@@ -22,7 +22,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: "APIs for Task Management Backend",
     },
-    servers: [{ url: `http://localhost:${PORT}` },[{ url:"https://task-managment-fa53.onrender.com/" ],
+    servers: [{ url: `http://localhost:${PORT}` },{ url:"https://task-managment-fa53.onrender.com/" }],
   },
   apis: ["./src/routes/*.js"],
 }
