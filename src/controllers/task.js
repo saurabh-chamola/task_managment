@@ -150,10 +150,10 @@ export const getMyTasks = asyncHandler(async (req, res, next) => {
  * @access  Private (Admin,Manager)
  * */
 export const getTasksAnalytics = asyncHandler(async (req, res, next) => {
-    const completedTasks = await taskModel.countDocuments({ status: "Completed" })
-    const pendingTasks = await taskModel.countDocuments({ status: "Pending" })
-    const overdueTasks = await taskModel.countDocuments({ dueDate: { $gt: new Date() } })
+    const completed_tasks = await taskModel.countDocuments({ status: "Completed" })
+    const pending_tasks = await taskModel.countDocuments({ status: "Pending" })
+    const overdue_tasks = await taskModel.countDocuments({ dueDate: { $gt: new Date() } })
 
 
-    res.status(200).json({ status: true,overdueTasks,pendingTasks,completedTasks  })
+    res.status(200).json({ status: true,overdue_tasks,pending_tasks,completed_tasks  })
 })
