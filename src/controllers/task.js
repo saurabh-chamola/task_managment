@@ -103,11 +103,11 @@ export const deleteTask = asyncHandler(async (req, res, next) => {
 export const updateTask = asyncHandler(async (req, res, next) => {
     const { status } = req.body;
     let updatedTaskDetails;
-    
+
     // Allow "User" role to only change the task status
     if (req.role === "User") {
         if (!status) {
-       
+
             return res.status(400).json({ success: false, message: "User can only change task status!" });
         }
         updatedTaskDetails = await taskModel.findByIdAndUpdate(req.params.id, { status }, { new: true });
@@ -143,4 +143,17 @@ export const getMyTasks = asyncHandler(async (req, res, next) => {
         return next(new errorHandler("No tasks is assigned to you!!"))
     }
     res.status(200).json({ status: true, data: tasks })
+})
+/**
+ * @desc    give detail tasks analytics(for tracking overdue,completed,pendingtasks)
+ * @route   get/api/v1/task/analytics
+ * @access  Private (Admin,Manager)
+ * */
+export const getTasksAnalytics = asyncHandler(async (req, res, next) => {
+    const completedTasks = await taskModel.countDocuments({ status: "Completed" })
+    const pendingTasks = await taskModel.countDocuments({ status: "Pending" })
+    const overdueTasks = await taskModel.countDocuments({ dueDate: { $gt: new Date() } })
+
+
+    res.status(200).json({ status: true,overdueTasks,pendingTasks,completedTasks  })
 })

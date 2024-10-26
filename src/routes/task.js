@@ -1,6 +1,6 @@
 
 import express from "express";
-import { deleteTask, getMyTasks, getTaskDetails, newTask, taskAssignment, updateTask } from "../controllers/task.js";
+import { deleteTask, getMyTasks, getTaskDetails, getTasksAnalytics, newTask, taskAssignment, updateTask } from "../controllers/task.js";
 import { verifyTokenMiddleware } from "../middlewares/verifyToken.js";
 import { checkRole } from "../middlewares/checkRole.js";
 
@@ -227,5 +227,41 @@ router.route("/:id").put(verifyTokenMiddleware, updateTask);
  *         description: Task not found.
  */
 router.route("/:id").delete(verifyTokenMiddleware, checkRole("Admin", "Manager"), deleteTask);
+
+
+/**
+ * @swagger
+ * /api/v1/task/analytics:
+ *   get:
+ *     tags: [Task Management APIs]
+ *     summary: Get Task Analytics
+ *     description: Retrieve task analytics including counts of completed, pending, and overdue tasks. This endpoint provides a summary of task statuses for better management and monitoring.
+ *     responses:
+ *       200:
+ *         description: Task analytics retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalTasks:
+ *                   type: integer
+ *                   description: Total number of tasks.
+ *                   example: 100
+ *                 completedTasks:
+ *                   type: integer
+ *                   description: Number of tasks that are completed.
+ *                   example: 70
+ *                 pendingTasks:
+ *                   type: integer
+ *                   description: Number of tasks that are still pending.
+ *                   example: 20
+ *                 overdueTasks:
+ *                   type: integer
+ *                   description: Number of tasks that are overdue.
+ *                   example: 10
+ */
+router.route("/analytics").get(verifyTokenMiddleware, checkRole("Admin", "Manager"), getTasksAnalytics);
+
 
 export default router;
