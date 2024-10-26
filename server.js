@@ -7,12 +7,20 @@ import error from "./src/utils/error.js";
 import connectDB from "./src/configs/db.js";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from "swagger-jsdoc";
+import cors from "cors"
 
 
 dotenv.config();
 const app = express();
 const PORT = 8000 ||  process.env.PORT ;
 
+
+// cors configuration
+app.use(cors({
+  origin: 'https://task-managment-fa53.onrender.com',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+}));
 
 const swaggerOptions = {
   definition: {
