@@ -1,4 +1,5 @@
 import { sendSignupNotification } from "../configs/nodemailer.js";
+import { redis } from "../configs/redis.js";
 import userModel from "../models/user.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import errorHandler from "../utils/errorHandler.js";
@@ -101,29 +102,66 @@ export const logout = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @desc    Get details of the authenticated user
+ * @desc    Get details of the authenticated user(it will return the data fron redis database)
  * @route   GET /api/v1/user/authenticatedUser
  * @access  private
  */
 export const getAuthenticatedUserDetails = asyncHandler(async (req, res, next) => {
-    const existingUser = await userModel.findById(req.userId).populate("manager", ["_id", "username", "email"]);
-    if (!existingUser) return next(new errorHandler("No user details found! Please try again."));
+    const userId = req.userId;
+    const redisKey = `userDetails/${userId}`;
+
+    // Check if the cache key exists
+    const exists = await redis.exists(redisKey);
+
+    if (exists) {
+        // If the key exists
+        const redisData = await redis.get(redisKey);
+        const existingUser = JSON.parse(redisData);
+
+        return res.status(200).json({ status: true, data: existingUser });
+    } else {
+        // If the redis key does not exist
+        const existingUser = await userModel.findById(userId).populate("manager", ["_id", "username", "email"]);
+
+        if (!existingUser) {
+            return next(new errorHandler("No user details found! Please try again."));
+        }
+
+        // Store the data in cache
+        await redis.set(redisKey, JSON.stringify(existingUser), 'EX', 3600);
 
 
-    res.status(200).json({ status: true, data: existingUser });
+        res.status(200).json({ status: true, data: existingUser });
+    }
 });
 
 /**
- * @desc    Retrieve details of all users
+ * @desc    Retrieve details of all users(it fetches the data from redis)
  * @route   GET /api/v1/user/userDetails
  * @access  Private (Admin, Manager)
  */
 export const getAllUserDetails = asyncHandler(async (req, res, next) => {
-    let userDetails;
-    if (req?.role === "Manager") {
-        userDetails = await userModel.find({ manager: req?.userId }).populate("manager", ["_id", "username", "email"]);
+
+    const exists = await redis.exists("allUserDetails");
+
+    if (exists) {
+        // If the key exists, get the data from Redis
+        const redisData = await redis.get("allUserDetails");
+        const userDetails = JSON.parse(redisData);
+        return res.status(200).json({ status: true, data: userDetails });
     } else {
-        userDetails = await userModel.find().populate("manager", ["_id", "username", "email"]);
+
+        let userDetails;
+        if (req?.role === "Manager") {
+            userDetails = await userModel.find({ manager: req?.userId }).populate("manager", ["_id", "username", "email"]);
+        } else {
+            userDetails = await userModel.find().populate("manager", ["_id", "username", "email"]);
+        }
+
+        // Store the data in cache
+        await redis.set("allUserDetails", JSON.stringify(userDetails), 'EX', 3600);
+
+
+        res.status(200).json({ status: true, data: userDetails });
     }
-    res.status(200).json({ status: true, data: userDetails });
 });

@@ -64,49 +64,23 @@ const router = express.Router();
 /**
  * @swagger
  * /api/v1/task:
- *   post:
- *     tags: [Task Management APIs]
- *     summary: Create Task
- *     description: Only Admins and Managers can create a new task. The task requires a title, description, and due date.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *                 description: Title of the task.
- *                 example: "Dummy title"
- *               description:
- *                 type: string
- *                 description: Detailed description of the task.
- *                 example: "Title description."
- *               dueDate:
- *                 type: string
- *                 format: date-time
- *                 description: Task due date.
- *                 example: "2024-12-12"
- *     responses:
- *       201:
- *         description: Task created successfully.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Task'
- *       400:
- *         description: Invalid input data.
- */
-router.route("/").post(verifyTokenMiddleware, checkRole("Admin", "Manager"), newTask);
-
-/**
- * @swagger
- * /api/v1/task:
  *   get:
  *     tags: [Task Management APIs]
  *     summary: Retrieve All Tasks
- *     description: Admins and Managers can retrieve all task details. users will only see their assigned tasks.
+ *     description: Admins and Managers can fetch all task details, with filtering by status ("Pending" or "Completed") and searching by `title`.
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Filter tasks by status ("Pending" or "Completed").
+ *       - in: query
+ *         name: title
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Search tasks by title (case-insensitive).
  *     responses:
  *       200:
  *         description: Tasks retrieved successfully.
@@ -118,6 +92,7 @@ router.route("/").post(verifyTokenMiddleware, checkRole("Admin", "Manager"), new
  *                 $ref: '#/components/schemas/Task'
  */
 router.route("/").get(verifyTokenMiddleware, checkRole("Admin", "Manager"), getTaskDetails);
+
 
 /**
  * @swagger
@@ -161,7 +136,20 @@ router.route("/taskAssignment/:taskId").put(verifyTokenMiddleware, checkRole("Ad
  *   get:
  *     tags: [Task Management APIs]
  *     summary: Get My Tasks
- *     description: Retrieve all tasks assigned to the logged-in user to track their responsibilities.
+ *     description: getting all tasks assigned to the logged in user, with  filtering by `status` ( "Pending" or "Completed") and searching by "title".
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Filter tasks by status ("Pending" or "Completed").
+ *       - in: query
+ *         name: title
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Search tasks by title (case_insensitive).
  *     responses:
  *       200:
  *         description: User's tasks retrieved successfully.
@@ -173,6 +161,7 @@ router.route("/taskAssignment/:taskId").put(verifyTokenMiddleware, checkRole("Ad
  *                 $ref: '#/components/schemas/Task'
  */
 router.route("/getMyTasks").get(verifyTokenMiddleware, getMyTasks);
+
 
 /**
  * @swagger

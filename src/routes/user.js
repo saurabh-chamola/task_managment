@@ -123,7 +123,7 @@ router.route("/signup").post(signup);
  *   post:
  *     tags: [User Operations APIs]
  *     summary: Log in a user
- *     description: Authenticates the user using their username or email and password.
+ *     description: Authenticates the user using their username or email and password. express-rate-limitter is also integrated with this api for avoiding brute force attack. 5 login attempts allowed within 5 minutes per ip
  *     requestBody:
  *       required: true
  *       content:
@@ -186,7 +186,7 @@ router.route("/logout").post(logout);
  *   get:
  *     tags: [User Operations APIs]
  *     summary: Get authenticated user details
- *     description: Fetches the details of the logged-in user.
+ *     description: Fetches the details of the logged-in user.it will return the data from redis database from second attempt for making response more efficient
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -207,7 +207,7 @@ router.route("/authenticatedUser").get(verifyTokenMiddleware, getAuthenticatedUs
  *   get:
  *     tags: [User Operations APIs]
  *     summary: Get all users' details
- *     description: Provides a list of all users, accessible only by Admin and Manager roles.
+ *     description: Provides a list of all users, accessible only by Admin and Manager roles.it will return the data from redis database from second attempt for making response more efficient
  *     security:
  *       - bearerAuth: []
  *     responses:

@@ -70,8 +70,15 @@ export const taskAssignment = asyncHandler(async (req, res, next) => {
  * @access  Private (Admin, Manager)
  */
 export const getTaskDetails = asyncHandler(async (req, res, next) => {
+    const { status, title } = req?.query
 
-    const tasks = await taskModel.find().populate("assignedUser", ["_id", "username", "email", "manager", "role"]);
+    //search and filter according to task status and search
+    const filter = {};
+    if (status) filter.status = status;
+
+    if (title) filter.title = new RegExp(title, "i");
+
+    const tasks = await taskModel.find(filter).populate("assignedUser", ["_id", "username", "email", "manager", "role"]);
 
     res.status(200).json({ status: true, data: tasks });
 });
@@ -136,13 +143,20 @@ export const updateTask = asyncHandler(async (req, res, next) => {
  * @access  Private (Admin ,Manager,Authenticated user)
  * */
 export const getMyTasks = asyncHandler(async (req, res, next) => {
-    const tasks = await taskModel.find({ assignedUser: req?.userId })
 
-    if (tasks.length <= 0) {
+    const { status, title } = req.query;
 
-        return next(new errorHandler("No tasks is assigned to you!!"))
+    const filter = { assignedUser: req.userId };
+    if (status) filter.status = status;
+    if (title) filter.title = new RegExp(title, "i");
+
+    const tasks = await taskModel.find(filter);
+
+    if (tasks.length === 0) {
+        return next(new errorHandler("No tasks are assigned to you!!"));
     }
-    res.status(200).json({ status: true, data: tasks })
+
+    res.status(200).json({ status: true, data: tasks });
 })
 /**
  * @desc    give detail tasks analytics(for tracking overdue,completed,pendingtasks)
@@ -155,5 +169,5 @@ export const getTasksAnalytics = asyncHandler(async (req, res, next) => {
     const overdue_tasks = await taskModel.countDocuments({ dueDate: { $gt: new Date() } })
 
 
-    res.status(200).json({ status: true,overdue_tasks,pending_tasks,completed_tasks  })
+    res.status(200).json({ status: true, overdue_tasks, pending_tasks, completed_tasks })
 })

@@ -7,11 +7,16 @@ import error from "./src/utils/error.js";
 import connectDB from "./src/configs/db.js";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from "swagger-jsdoc";
+import { redis } from "./src/configs/redis.js";
 
+//Redis connection
+redis.on("connect", () => {
+  console.log("Redis connected!!");
+});
 
 dotenv.config();
 const app = express();
-const PORT = 8000 ||  process.env.PORT ;
+const PORT = 8000 || process.env.PORT;
 
 
 const swaggerOptions = {
@@ -22,7 +27,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: "APIs for Task Management Backend",
     },
-    servers: [{ url: `http://localhost:${PORT}` },{ url:"https://task-managment-fa53.onrender.com/" }],
+    servers: [{ url: `http://localhost:${PORT}` }, { url: "https://task-managment-fa53.onrender.com/" }],
   },
   apis: ["./src/routes/*.js"],
 }
@@ -38,6 +43,8 @@ app.set('views', './views')
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+
+
 
 
 // Connect to Database

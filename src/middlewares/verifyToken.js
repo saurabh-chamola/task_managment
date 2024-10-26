@@ -8,7 +8,7 @@ export const verifyTokenMiddleware = (req, res, next) => {
     if (!token) {
         return res.status(403).json({
             success: false,
-            message: "Unauthorized!!! -- Please check your login credentials.",
+            message: "Unauthorized!!! -- Please login first!!.",
         });
     }
 
