@@ -47,7 +47,9 @@ connectDB();
 // Route Middlewares
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/task", taskRoutes);
-
+app.get('/', (req, res) => {
+  res.send("Welcome to the Task Management System Apis.");
+});
 // Global Error Handler
 app.use(error);
 
