@@ -150,17 +150,11 @@ export const getAllUserDetails = asyncHandler(async (req, res, next) => {
         const userDetails = JSON.parse(redisData);
         return res.status(200).json({ status: true, data: userDetails });
     } else {
-
-        let userDetails;
-        if (req?.role === "Manager") {
-            userDetails = await userModel.find({ manager: req?.userId }).populate("manager", ["_id", "username", "email"]);
-        } else {
-            userDetails = await userModel.find().populate("manager", ["_id", "username", "email"]);
-        }
+        // Fetch all user details
+        const userDetails = await userModel.find().populate("manager", ["_id", "username", "email"])
 
         // Store the data in cache
         await redis.set("allUserDetails", JSON.stringify(userDetails), 'EX', 3600);
-
 
         res.status(200).json({ status: true, data: userDetails });
     }

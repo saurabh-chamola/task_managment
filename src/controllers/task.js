@@ -3,6 +3,7 @@ import errorHandler from "../utils/errorHandler.js";
 import user from "../models/user.js";
 import taskModel from "../models/tasks.js";
 import { sendSignupNotification, taskAssignmentNotification, taskCompletionNotification } from "../configs/nodemailer.js";
+import mongoose from "mongoose";
 
 
 /**
@@ -71,6 +72,7 @@ export const taskAssignment = asyncHandler(async (req, res, next) => {
  */
 export const getTaskDetails = asyncHandler(async (req, res, next) => {
     const { status, title } = req?.query
+    
 
     //search and filter according to task status and search
     const filter = {};
@@ -120,6 +122,7 @@ export const updateTask = asyncHandler(async (req, res, next) => {
         updatedTaskDetails = await taskModel.findByIdAndUpdate(req.params.id, { status }, { new: true });
     } else {
         // Admin and Manager roles can update any task field
+
         updatedTaskDetails = await taskModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
     }
 
