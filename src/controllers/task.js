@@ -158,6 +158,8 @@ export const getMyTasks = asyncHandler(async (req, res, next) => {
 
     res.status(200).json({ status: true, data: tasks });
 })
+
+
 /**
  * @desc    give detail tasks analytics(for tracking overdue,completed,pendingtasks)
  * @route   get/api/v1/task/analytics

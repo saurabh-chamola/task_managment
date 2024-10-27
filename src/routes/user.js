@@ -33,6 +33,13 @@ const router = express.Router();
 
 /**
  * @swagger
+ * servers:
+ *   - url: https://task-managment-fa53.onrender.com
+ *     description: Render Deployment Server
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     User:
@@ -123,7 +130,7 @@ router.route("/signup").post(signup);
  *   post:
  *     tags: [User Operations APIs]
  *     summary: Log in a user
- *     description: Authenticates the user using their username or email and password. express-rate-limitter is also integrated with this api for avoiding brute force attack. 5 login attempts allowed within 5 minutes per ip
+ *     description: Authenticates the user using their username or email and password.on successfull signup a welcome notification will go to respective email. express-rate-limitter is also integrated with this api for avoiding brute force attack. 5 login attempts allowed within 5 minutes per ip
  *     requestBody:
  *       required: true
  *       content:

@@ -24,7 +24,12 @@ dotenv.config();
 const app = express();
 const PORT = 8000 || process.env.PORT;
 
-
+// cors configuration
+app.use(cors({
+  origin: 'https://task-managment-fa53.onrender.com',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+}));
 
 const swaggerOptions = {
   definition: {
