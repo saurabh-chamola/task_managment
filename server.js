@@ -46,21 +46,14 @@ export const io = new SocketIO(server, {
 
 
 
-// Socket.io connection event
+// Socket.io connection
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("A user connected:");
 
   // Handle disconnection
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    console.log("User disconnected:");
   });
-
-  //send real time notification
-  function realTimeNotification() {
-
-  }
-
-
 });
 
 
