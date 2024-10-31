@@ -5,6 +5,14 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import errorHandler from "../utils/errorHandler.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 /**
  * @desc    Register a new user with username, email, and password
@@ -38,7 +46,7 @@ export const signup = asyncHandler(async (req, res, next) => {
     //Nodemailer for notification
     sendSignupNotification({ email, username })
 
-    res.status(201).json({ status: true, message: "Signup successful!" });
+    res.status(201).json({ status: true, message: "Signup successful!", data: newUserDoc });
 });
 
 /**
@@ -70,23 +78,24 @@ export const login = asyncHandler(async (req, res, next) => {
 
     // Generate JWT 
     const token = jwt.sign(
-        { id: isUserExists._id, role: isUserExists.role },
+        { id: isUserExists._id, role: isUserExists.role, username: isUserExists.username },
         process.env.ACCESS_SECRET_KEY,
-        { expiresIn: "15m" } // Set token expiration time
+        { expiresIn: "15m" }
     );
 
     // Cookie options
     const options = {
         expires: new Date(Date.now() + 3600000), // 1 hour
         sameSite: process.env.NODE_ENV === "PRODUCTION" ? "none" : "Lax",
-        secure: process.env.NODE_ENV === "PRODUCTION", // Set to true in production for HTTPS
-        httpOnly: true, // Prevents JavaScript from accessing the cookie
+        secure: process.env.NODE_ENV === "PRODUCTION",
+        httpOnly: true,
     };
 
-    // Send response with cookie
+
     res.status(200).cookie("ACCESS_TOKEN", token, options).json({
         status: true,
-        message: "User logged in successfully"
+        message: "User logged in successfully",
+        data: isUserExists
     });
 });
 
@@ -159,3 +168,16 @@ export const getAllUserDetails = asyncHandler(async (req, res, next) => {
         res.status(200).json({ status: true, data: userDetails });
     }
 });
+
+
+
+export const realtimeNotification = asyncHandler(async (req, res, next) => {
+    const { id } = req?.params
+    const userData = await userModel.findById(req?.params?.id)
+    if (!userData) return next(new errorHandler("No user data found with given id!!"))
+
+    const heading = `Welcome ${userData?.username}(role-${userData?.role}), you will get realtime notification ,once an ew task is assigned to a task or any user com[lete any task`
+
+    res.render("notification", { message: heading })
+
+})

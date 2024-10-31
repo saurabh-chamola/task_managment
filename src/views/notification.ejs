@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #welcome {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #note {
+            font-size: 16px;
+            color: gray;
+            margin-bottom: 30px;
+        }
+        #notification {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="welcome">WELCOME TO THE TASK MANAGEMENT REAL-TIME NOTIFICATION SYSTEM</div>
+    <div id="note">You will receive real-time notifications whenever a task is assigned to a user or a user updates their task status.</div>
+    
+    <div id="notification"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // socket section
+        socket.on('notification', (data) => {
+            const notificationDiv = document.getElementById('notification');
+            notificationDiv.innerHTML += `<p>${data.message}</p>`;
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+    </script>
+</body>
+</html>

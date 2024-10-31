@@ -3,7 +3,7 @@ import errorHandler from "../utils/errorHandler.js";
 import user from "../models/user.js";
 import taskModel from "../models/tasks.js";
 import { sendSignupNotification, taskAssignmentNotification, taskCompletionNotification } from "../configs/nodemailer.js";
-import mongoose from "mongoose";
+import { io } from "../../server.js";
 
 
 /**
@@ -23,7 +23,7 @@ export const newTask = asyncHandler(async (req, res, next) => {
 
 
 /**
- * @desc    Assign a task to a user
+ * @desc    Assign a task to a user (whenever a new task is assigned to a user or whenever  users update their task,a real time notification will list)
  * @route   PUT /api/v1/task/:id
  * @access  Private (Admin, Manager) 
  *          - Admin: Can assign tasks to any user.
@@ -57,6 +57,12 @@ export const taskAssignment = asyncHandler(async (req, res, next) => {
 
     await taskModel.findByIdAndUpdate(taskId, { assignedUser: assignedUser, assignedBy: req?.userId });
 
+
+    // realtime notification to all users
+    io.emit("notification", { message: `${req?.username} assigned a task to ${isValidUserId.username}: "${task.title}"` })
+
+
+
     // nodemailer fo sending notification to user
     taskAssignmentNotification({ email: isValidUserId?.email, username: isValidUserId?.username, title: task?.title })
 
@@ -72,7 +78,7 @@ export const taskAssignment = asyncHandler(async (req, res, next) => {
  */
 export const getTaskDetails = asyncHandler(async (req, res, next) => {
     const { status, title } = req?.query
-    
+
 
     //search and filter according to task status and search
     const filter = {};
@@ -104,7 +110,8 @@ export const deleteTask = asyncHandler(async (req, res, next) => {
 
 
 /**
- * @desc    Update task details. If the user completes the task, a notification email is sent to both the user and the assigner.
+ * @desc    Update task details. If the user completes the task, a notification email is sent to both the user and the assigner.(whenever a new task is assigned to a user or whenever a users update their task,a real time notification will list)
+ * 
  * @route   PUT /api/v1/task/:id
  * @access  Private (Admin and Manager can modify any task detail, User can change task status only)
  */
@@ -112,14 +119,35 @@ export const deleteTask = asyncHandler(async (req, res, next) => {
 export const updateTask = asyncHandler(async (req, res, next) => {
     const { status } = req.body;
     let updatedTaskDetails;
+    const taskData = await taskModel.findById(req?.params?.id)
+
+
+    if (!taskData) {
+        return next(new errorHandler("No task found with given id!!! Invalid id"))
+    }
+
+
+    if (req?.userId != taskData?.assignedUser) {
+        return next(new errorHandler("can not update the task status!!! this task is not assigned to this user"))
+    }
+
 
     // Allow "User" role to only change the task status
     if (req.role === "User") {
         if (!status) {
-
+            if (req?.userId != taskData?.assignedUser) {
+                return next(new errorHandler("can not update the task status!!! this task is not assigned to this user"))
+            }
             return res.status(400).json({ success: false, message: "User can only change task status!" });
         }
         updatedTaskDetails = await taskModel.findByIdAndUpdate(req.params.id, { status }, { new: true });
+
+
+
+        // sending realtime task completion updates.when any user update task
+
+        io.emit("notification", { message: `User ${req?.username} has updated the task status to 'Completed' for the task titled:${updatedTaskDetails?.title}'."` })
+
     } else {
         // Admin and Manager roles can update any task field
 

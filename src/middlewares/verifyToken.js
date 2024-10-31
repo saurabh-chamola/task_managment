@@ -22,6 +22,8 @@ export const verifyTokenMiddleware = (req, res, next) => {
 
         req.userId = user?.id;
         req.role = user?.role;
+        req.username = user?.username
+        
 
         return next();
     });

@@ -6,6 +6,7 @@ import {
     getAuthenticatedUserDetails,
     login,
     logout,
+    realtimeNotification,
     signup
 } from "../controllers/user.js";
 import { verifyTokenMiddleware } from "../middlewares/verifyToken.js";
@@ -230,5 +231,8 @@ router.route("/authenticatedUser").get(verifyTokenMiddleware, getAuthenticatedUs
  *         description: Access denied for non-authorized users.
  */
 router.route("/userDetails").get(verifyTokenMiddleware, checkRole("Admin", "Manager"), getAllUserDetails);
+
+
+router.route("/realtime-notification/:id").get(realtimeNotification)
 
 export default router;
