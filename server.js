@@ -101,7 +101,7 @@ app.set('views', path.join(__dirname, 'src/views'))
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(path.resolve("./public")))
+
 
 
 

@@ -118,7 +118,9 @@ export const deleteTask = asyncHandler(async (req, res, next) => {
 
 export const updateTask = asyncHandler(async (req, res, next) => {
     const { status } = req.body;
+
     let updatedTaskDetails;
+
     const taskData = await taskModel.findById(req?.params?.id)
 
 
@@ -127,9 +129,7 @@ export const updateTask = asyncHandler(async (req, res, next) => {
     }
 
 
-    if (req?.userId != taskData?.assignedUser) {
-        return next(new errorHandler("can not update the task status!!! this task is not assigned to this user"))
-    }
+
 
 
     // Allow "User" role to only change the task status
@@ -139,6 +139,10 @@ export const updateTask = asyncHandler(async (req, res, next) => {
                 return next(new errorHandler("can not update the task status!!! this task is not assigned to this user"))
             }
             return res.status(400).json({ success: false, message: "User can only change task status!" });
+        }
+
+        if (req?.userId != taskData?.assignedUser) {
+            return next(new errorHandler("can not update the task status!!! this task is not assigned to this user"))
         }
         updatedTaskDetails = await taskModel.findByIdAndUpdate(req.params.id, { status }, { new: true });
 
