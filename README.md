@@ -1,5 +1,4 @@
-Task Management Backend APIs
-Real-Time Task Updates
+
 To view real-time task updates using Socket.IO, access the following endpoints in your browser:
 
 Local Server: http://localhost:8000/api/v1/realtime-notifications
